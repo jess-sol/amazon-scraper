@@ -12,7 +12,7 @@ class ProductPageRunner
     def getAuthor(agent, page)
         authors = []
 
-        page.parser.css('#booksTitle .author .contributorNameID').each do |author|
+        page.parser.css('#booksTitle .author > a, #booksTitle .author a.contributorNameID').each do |author|
             authors.push(removeWhitespace(author.text))
         end
 
