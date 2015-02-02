@@ -1,72 +1,16 @@
-#!/usr/bin/env ruby
-require 'Mechanize'
+$:.unshift File.join(File.dirname(__FILE__), 'lib')
 
-require_relative 'Runners/ProductPageRunner'
+require 'scraper'
 
-class Scraper
-    def initialize(retryCount=1)
-        @retryCount = retryCount
-        @retrySleep = 1/2.0
-        @scrapeSleep = 1/2.0
-
-        @urlPattern = 'http://www.amazon.com/dp/$isbn'
-
-        @agent = Mechanize.new
-        @agent.user_agent_alias = 'Windows IE 8'
-    end
-
-    def scrape(runner, isbn)
-        page = @agent.get(url(isbn))
-
-        runner.run(@agent, page)
-    end
-
-    def scrapeAll(runner, isbns)
-        results = []
-
-        isbns.each do |isbn|
-            retries = 0
-            begin
-                scrapeResult = scrape(runner, isbn)
-
-                data = {
-                    :isbn => isbn,
-                    :success => true,
-                    :data => scrapeResult
-                }
-
-                yield data
-            rescue Exception => e
-                if (retries < @retryCount)
-                    sleep(@retrySleep)
-                    retries += 1
-                    retry
-                end
-                data = {
-                    :isbn => isbn,
-                    :success => false,
-                    :error => e.to_s
-                }
-                yield data
-            end
-
-            sleep(@scrapeSleep)
-        end
-    end
-
-    private
-    def url(isbn)
-        return @urlPattern.gsub(/\$isbn/, isbn)
-    end
-end
-
-# Command line runner
+# Print single scraped page's contents
 if (ARGV.length == 1)
     require 'awesome_print'
 
     scraper = Scraper.new
     runner = ProductPageRunner.new
     ap scraper.scrape(runner, ARGV[0])
+
+# Go through input file, output to directory
 elsif (ARGV.length > 0)
     listOfUrlsToScrapeFile = ARGV[0]
     outputDirectory = ARGV.length > 1 ? ARGV[1] : "output/"
@@ -123,7 +67,8 @@ elsif (ARGV.length > 0)
     end
 
     errorStream.close unless errorStream == $stderr
-        
+
+# Output Help    
 else
     puts "Help: ruby #{__FILE__} [inputfile] [outputdirectory] [errorfile]"
     puts "inputfile - List of ISBNs to request, defaults to input."
