@@ -47,6 +47,7 @@ elsif (ARGV.length > 0)
             puts "Retrieved #{result[:isbn]} - #{result[:data][:title]}"
 
             File.open(File.join(outputDirectory, "#{result[:isbn]}.txt"), 'w') do |file|
+                file.puts("isbn: #{printPrepare result[:isbn]}")
                 file.puts("title: #{printPrepare result[:data][:title]}")
                 file.puts("author: #{printPrepare result[:data][:author].join(', ')}")
                 file.puts("description: #{printPrepare result[:data][:description]}")
