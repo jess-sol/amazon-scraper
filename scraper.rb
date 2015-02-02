@@ -10,15 +10,15 @@ class Scraper
         @scrapeSleep = 1/2.0
 
         @urlPattern = 'http://www.amazon.com/dp/$isbn'
-        @userAgentAlias = 'Windows IE 8'
+
+        @agent = Mechanize.new
+        @agent.user_agent_alias = 'Windows IE 8'
     end
 
     def scrape(runner, isbn)
-        agent = Mechanize.new
-        agent.user_agent_alias = @userAgentAlias
-        page = agent.get(url(isbn))
+        page = @agent.get(url(isbn))
 
-        runner.run(agent, page)
+        runner.run(@agent, page)
     end
 
     def scrapeAll(runner, isbns)
@@ -27,17 +27,27 @@ class Scraper
         isbns.each do |isbn|
             retries = 0
             begin
-                result = scrape(runner, isbn)
-                result[:isbn] = isbn
+                scrapeResult = scrape(runner, isbn)
 
-                yield result
+                data = {
+                    :isbn => isbn,
+                    :success => true,
+                    :data => scrapeResult
+                }
+
+                yield data
             rescue Exception => e
-                puts "ERRROR #{e}"
                 if (retries < @retryCount)
                     sleep(@retrySleep)
                     retries += 1
                     retry
                 end
+                data = {
+                    :isbn => isbn,
+                    :success => false,
+                    :error => e.to_s
+                }
+                yield data
             end
 
             sleep(@scrapeSleep)
@@ -83,8 +93,33 @@ elsif (ARGV.length > 0)
     scraper = Scraper.new
     runner = ProductPageRunner.new
 
+    def printPrepare(str)
+        str.gsub(/:/, '').downcase
+    end
+
     scraper.scrapeAll(runner, listOfUrlsToScrape) do |result|
-        puts result.inspect
+        if (result[:success])
+            puts "Retrieved #{result[:isbn]} - #{result[:data][:title]}"
+
+            File.open(File.join(outputDirectory, "#{result[:isbn]}.txt"), 'w') do |file|
+                file.puts("title: #{printPrepare result[:data][:title]}")
+                file.puts("author: #{printPrepare result[:data][:author].join(', ')}")
+                file.puts("description: #{printPrepare result[:data][:description]}")
+
+                result[:data][:details].each do |detail, value|
+                    if (detail == "Amazon Best Sellers Rank")
+                        value.each do |ranking|
+                            file.puts("ranking: #{printPrepare ranking[:ladder].last} (#{ranking[:rank]})")
+                        end
+                    else
+                        file.puts("#{printPrepare detail}: #{printPrepare value}")
+                    end
+                end
+            end
+        else
+            puts "Failed #{result[:isbn]} - #{result[:error]}"
+            errorStream.puts(result[:isbn])
+        end
     end
 else
     puts "Help: ruby #{__FILE__} [inputfile] [outputdirectory] [errorfile]"
