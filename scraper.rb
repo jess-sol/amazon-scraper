@@ -121,6 +121,9 @@ elsif (ARGV.length > 0)
             errorStream.puts(result[:isbn])
         end
     end
+
+    errorStream.close unless errorStream == $stderr
+        
 else
     puts "Help: ruby #{__FILE__} [inputfile] [outputdirectory] [errorfile]"
     puts "inputfile - List of ISBNs to request, defaults to input."
