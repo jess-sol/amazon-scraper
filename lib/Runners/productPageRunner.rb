@@ -1,11 +1,15 @@
 class ProductPageRunner
     def run(agent, page)
-        {
+        result = {
             :title => removeWhitespace(page.parser.css('#booksTitle #productTitle').text),
             :author => getAuthor(agent, page),
             :description => removeWhitespace(page.parser.css('#bookDescription_feature_div noscript').text),
             :details => getProductDetails(agent, page)
         }
+
+        result[:missing_data] = containsAll(result, [:title, :author, :description, :details])
+
+        result
     end
 
     private
@@ -59,6 +63,18 @@ class ProductPageRunner
         end
 
         rankings
+    end
+
+    def containsAll(hash, keys)
+        nonexistingKeys = []
+        keys.each do |key|
+            nonexistingKeys.push(key) unless
+            hash.has_key? key or
+            hash[key].nil? or
+            (hash[key].is_a(Array) and hash[key].length == 0)
+        end
+
+        nonexistingKeys
     end
 
     def removeWhitespace(str)

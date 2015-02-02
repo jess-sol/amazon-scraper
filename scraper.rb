@@ -42,24 +42,13 @@ elsif (ARGV.length > 0)
         str.gsub(/:/, '').downcase
     end
 
-    def containsAll(hash, keys)
-        nonexistingKeys = []
-        keys.each do |key|
-            nonexistingKeys.push(key) unless hash.has_key? key
-        end
-
-        nonexistingKeys
-    end
-
     scraper.scrapeAll(runner, listOfUrlsToScrape) do |result|
         if (result[:success])
-            nonexistingKeys = containsAll(result[:data], [:title, :author, :description, :details])
-
-            if (nonexistingKeys.length > 0)
+            if (result[:data][:missing_data].length == 0)
+                puts "Retrieved #{result[:isbn]} - #{result[:data][:title]}"
+            else
                 puts "Retrieved #{result[:isbn]} Partially Invalid, missing #{nonexistingKeys.join(", ")} - #{result[:data][:title]}"
                 errorStream.puts(result[:isbn])
-            else
-                puts "Retrieved #{result[:isbn]} - #{result[:data][:title]}"
             end
 
             File.open(File.join(outputDirectory, "#{result[:isbn]}.txt"), 'w') do |file|
