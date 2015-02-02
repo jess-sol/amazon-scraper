@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'Mechanize'
 
 require_relative 'Runners/ProductPageRunner'
