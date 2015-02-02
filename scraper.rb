@@ -35,7 +35,7 @@ elsif (ARGV.length > 0)
     listOfUrlsToScrape.delete_if {|isbn| isbn.chomp == '' }
     listOfUrlsToScrape.map! {|isbn| isbn.strip }
 
-    scraper = Scraper.new
+    scraper = Scraper.new(retrySleep = 2, retryCount = 3)
     runner = ProductPageRunner.new
 
     def printPrepare(str)
