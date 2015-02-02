@@ -86,11 +86,11 @@ elsif (ARGV.length > 0)
         puts result.inspect
     end
 else
-    puts "Help: ruby Scraper.rb [inputfile] [outputdirectory] [errorfile]"
+    puts "Help: ruby #{__FILE__} [inputfile] [outputdirectory] [errorfile]"
     puts "inputfile - List of ISBNs to request, defaults to input."
     puts "outputdirectory - Directory to create ISBN files with their data, defaults to output/."
     puts "errorfile - List of failed to retrieve ISBNs, defaults to screen if no value is given."
     puts
-    puts "ruby Scraper.rb [isbn]"
+    puts "ruby #{__FILE__} [isbn]"
     puts "Retrieve and print out info for isbn"
 end
