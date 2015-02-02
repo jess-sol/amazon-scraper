@@ -3,10 +3,10 @@ require 'Mechanize'
 require_relative 'Runners/ProductPageRunner'
 
 class Scraper
-    def initialize(retryCount=1)
+    def initialize(retryCount=1, retrySleep=0.5, scrapeSleep=0.5)
         @retryCount = retryCount
-        @retrySleep = 1/2.0
-        @scrapeSleep = 1/2.0
+        @retrySleep = retrySleep
+        @scrapeSleep = scrapeSleep
 
         @urlPattern = 'http://www.amazon.com/dp/$isbn'
 
