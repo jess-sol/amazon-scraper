@@ -78,6 +78,7 @@ class ProductPageRunner
     end
 
     def removeWhitespace(str)
+        return str unless str.is_a?(String)
         str.gsub(/\s{3,}/, ' ').strip
     end
 end
