@@ -39,6 +39,7 @@ elsif (ARGV.length > 0)
     runner = ProductPageRunner.new
 
     def printPrepare(str)
+        return str unless str.is_a?(String)
         str.gsub(/:/, '').downcase
     end
 
