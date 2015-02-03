@@ -51,7 +51,8 @@ elsif (ARGV.length > 0)
                 errorStream.puts(result[:isbn])
             end
 
-            File.open(File.join(outputDirectory, "#{result[:isbn]}.txt"), 'w') do |file|
+            File.open(File.join(outputDirectory, "#{result[:isbn]}"), 'a') do |file|
+                file.puts("#amazon")
                 file.puts("isbn: #{printPrepare result[:isbn]}")
                 file.puts("title: #{printPrepare result[:data][:title]}")
                 file.puts("author: #{printPrepare result[:data][:author].join(', ')}")
